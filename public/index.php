@@ -36,7 +36,7 @@ $repositories($containerBuilder);
 $container = $containerBuilder->build();
 
 // Instantiate the app
-AppFactory::setContainer($container);
+AppFactory::setContainer($container); 
 $app = AppFactory::create();
 $callableResolver = $app->getCallableResolver();
 
