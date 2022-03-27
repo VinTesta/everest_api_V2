@@ -18,7 +18,7 @@ return function (App $app) {
         return $response;
     });
 
-    $app->get('/buscaEventos', function (Request $request, Response $response) {
+    $app->get('/teste', function (Request $request, Response $response) {
         $response->getBody()->write('Hello world!');
         return $response;
     });
