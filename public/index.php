@@ -9,6 +9,7 @@ use App\Application\Settings\SettingsInterface;
 use DI\ContainerBuilder;
 use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
+use App\Domain\Token\TokenService;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -38,6 +39,21 @@ $container = $containerBuilder->build();
 AppFactory::setContainer($container);
 $app = AppFactory::create();
 $callableResolver = $app->getCallableResolver();
+
+$tokenService = new TokenService();
+
+$app->add(new Tuupola\Middleware\JwtAuthentication([
+    "path" => ["/buscaEventos"],
+    "secret" => $tokenService->getKey(),
+    "algorithm" => ["HS256"],
+    "error" => function ($response, $arguments) {
+        $data["status"] = "error";
+        $data["message"] = $arguments["message"];
+        return $response
+            ->withHeader("Content-Type", "application/json")
+            ->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+    }
+]));
 
 // Register middleware
 $middleware = require __DIR__ . '/../app/middleware.php';

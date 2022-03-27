@@ -17,6 +17,11 @@ return function (App $app) {
         $response->getBody()->write('Hello world!');
         return $response;
     });
+
+    $app->get('/buscaEventos', function (Request $request, Response $response) {
+        $response->getBody()->write('Hello world!');
+        return $response;
+    });
     
     $app->post('/logar', LoginUsuario::class);
 };
