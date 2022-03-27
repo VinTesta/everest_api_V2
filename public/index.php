@@ -45,6 +45,7 @@ $tokenService = new TokenService();
 $app->add(new Tuupola\Middleware\JwtAuthentication([
     "path" => ["/teste"],
     "secret" => $tokenService->getKey(),
+	"secure" => false,
     "algorithm" => ["HS256"],
     "error" => function ($response, $arguments) {
         $data["status"] = "error";
