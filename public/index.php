@@ -43,7 +43,7 @@ $callableResolver = $app->getCallableResolver();
 $tokenService = new TokenService();
 
 $app->add(new Tuupola\Middleware\JwtAuthentication([
-    "path" => ["/teste"],
+    "path" => [],
     "secret" => $tokenService->getKey(),
     "algorithm" => ["HS256"],
     "error" => function ($response, $arguments) {
