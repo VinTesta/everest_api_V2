@@ -12,17 +12,12 @@ class EventoRepository
 
     public function buscaEvento()
     {
-        $eventos = [];
-        
-        for ($i=0; $i < 3; $i++) { 
-            $params = ["idevento" => $i,
-                    "tituloevento" => "Evento" . $i,
-                    "descevento" => "Evento" . $i,
-                    "dataevento" => $i
-            ];
-            $eventos[] = new Evento($params);
-        }
-
+        $params = ["idevento" => 1,
+                "tituloevento" => "Evento 1",
+                "descevento" => "Evento 1",
+                "dataevento" => 1
+        ];
+        $eventos = new Evento($params);
         return $eventos;
     }
 }

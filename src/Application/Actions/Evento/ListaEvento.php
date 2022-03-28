@@ -19,14 +19,10 @@ final class ListaEvento
         $er = new EventoRepository();
 
         $res->getBody()->write(
-            json_encode(
-                array(
-                    "eventos" => $er->buscaEvento()
-                )
-            )
+            json_encode($er->buscaEvento())
         );
 
         return $res
-                ->withHeader("Content-Type", "application/json");
+                ->withHeader("Content-Type", "application/json; charset=utf-8");
     }
 }
