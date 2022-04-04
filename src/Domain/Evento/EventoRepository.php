@@ -21,23 +21,19 @@ class EventoRepository
     public function select()
     {
         return "SELECT 
-                        e.idevento,
-                        e.tituloevento,
-                        e.descevento,
-                        e.statusevento
+                        *
                     FROM
                         evento e";
     }
 
-    public function buscaEvento()
+    public function buscaEventoUsuario($idusuario)
     {
         $query = $this->select();
-        $tokenService = new TokenService();
-        $headers = apache_request_headers();
-        var_dump(JWT::decode(explode(" ", $headers['Authorization'])[1], $tokenService->getKey(), array_keys(JWT::$supported_algs)));
-        die();
 
+        $query = str_replace("evento e", "evento e, usuarioevento ue WHERE ue.evento_idevento = e.idevento AND ue.usuario_idusuario = :idusuario", $this->select());
+         
         $stmt = $this->_conn->prepare($query);
+        $stmt->bindValue(":idusuario", $idusuario);
 
         $stmt->execute();
         $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
