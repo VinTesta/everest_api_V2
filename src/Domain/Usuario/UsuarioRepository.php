@@ -4,12 +4,18 @@ namespace App\Domain\Usuario;
 use App\Domain\Usuario\Usuario; 
 use Firebase\JWT\JWT;
 use App\Domain\Token\TokenService;
+use App\Domain\Config\Conexao;
+use PDO;
+use App\Domain\Usuario\UsuarioFactory;
 
 class UsuarioRepository
 {
-    public function __construct()
+
+    private $_conn;
+
+    public function __construct(Conexao $conexao)
     {
-        
+        $this->_conn = $conexao->getConexao();
     }
 
     public function select()
@@ -19,9 +25,18 @@ class UsuarioRepository
 
     public function buscaUsuarioEmail($emailusuario)
     {
-        $query = str_replace("usuario WHERE emailusuario = ?", "usuario", $this->select());
+        $query = str_replace("usuario", "usuario WHERE emailusuario = :emailcliente", $this->select());
 
-        return new Usuario(["emailusuario" => "vinicius@gmail.com", "senhausuario" => "logar123"]);
+        $stmt = $this->_conn->prepare($query);
+        $stmt->bindValue(":emailcliente", $emailusuario);
+
+        $stmt->execute();
+        $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $error = $stmt->errorInfo();
+
+        $uf = new UsuarioFactory();
+        return $uf->geraUsuario($resultado[0]);
     }
 
     public function logar($u)

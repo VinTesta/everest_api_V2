@@ -8,6 +8,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Domain\Usuario\UsuarioRepository;
 use App\Domain\Usuario\Usuario;
+use App\Domain\Config\ConexaoMySql;
 
 final class LoginUsuario
 {
@@ -18,7 +19,7 @@ final class LoginUsuario
     {
         try
         {
-            $ur = new UsuarioRepository();
+            $ur = new UsuarioRepository(new ConexaoMySql());
             $token = $ur->logar((array)$req->getParsedBody());
             
             $res->getBody()->write(

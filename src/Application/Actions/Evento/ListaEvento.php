@@ -6,8 +6,8 @@ namespace App\Application\Actions\Evento;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use App\Domain\Config\ConexaoMySql;
 use App\Domain\Evento\EventoRepository;
-use App\Domain\Evento\Evento;
 
 final class ListaEvento
 {
@@ -16,10 +16,10 @@ final class ListaEvento
      */
     public function __invoke(Request $req, Response $res, array $args): Response
     {
-        $er = new EventoRepository();
+        $er = new EventoRepository(new ConexaoMySql());
 
         $res->getBody()->write(
-            json_encode($er->buscaEvento())
+            (string) json_encode($er->buscaEvento())
         );
 
         return $res
