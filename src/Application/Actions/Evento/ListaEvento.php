@@ -18,18 +18,32 @@ final class ListaEvento
      */
     public function __invoke(Request $req, Response $res, array $args): Response
     {
-        $er = new EventoRepository(new ConexaoMySql());
+        try {
+            $er = new EventoRepository(new ConexaoMySql());
 
-        $tokenService = new TokenService();
-        $headers = apache_request_headers();
-        $infoUsuario = JWT::decode(explode(" ", $headers['Authorization'])[1], $tokenService->getKey(), array_keys(JWT::$supported_algs));
+            $tokenService = new TokenService();
+            $headers = apache_request_headers();
+            $infoUsuario = JWT::decode(explode(" ", $headers['Authorization'])[1], $tokenService->getKey(), array_keys(JWT::$supported_algs));
 
-        $result = $er->buscaEventoUsuario($infoUsuario->id);
-        $res->getBody()->write(
-            (string) json_encode($result)
-        );
+            $result = $er->buscaEventoUsuario($infoUsuario->id);
+            $res->getBody()->write(
+                (string) json_encode($result)
+            );
 
-        return $res
-                ->withHeader("Content-Type", "application/json; charset=utf-8");
+            return $res
+                    ->withHeader("Content-Type", "application/json; charset=utf-8");
+        } catch (Exception $ex) {
+            return $res->getBody()->write(
+                (string) json_encode(
+                    array( 
+                        "status" => 500,
+                        "mensagem" => "Houve um erro ao buscar os eventos!",
+                        "erro" => (string) $ex
+                    )
+                )
+            )
+            ->withHeader("Content-Type", "application/json");
+        }
+        
     }
 }
