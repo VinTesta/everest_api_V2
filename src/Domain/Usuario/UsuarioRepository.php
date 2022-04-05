@@ -25,38 +25,50 @@ class UsuarioRepository
 
     public function buscaUsuarioEmail($emailusuario)
     {
-        $query = str_replace("usuario", "usuario WHERE emailusuario = :emailcliente", $this->select());
+        try
+        {
+            $query = str_replace("usuario", "usuario WHERE emailusuario = :emailcliente", $this->select());
 
-        $stmt = $this->_conn->prepare($query);
-        $stmt->bindValue(":emailcliente", $emailusuario);
-
-        $stmt->execute();
-        $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        $error = $stmt->errorInfo();
-
-        $uf = new UsuarioFactory();
-        return $uf->geraUsuario($resultado[0]);
+            $stmt = $this->_conn->prepare($query);
+            $stmt->bindValue(":emailcliente", $emailusuario);
+    
+            $stmt->execute();
+            $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+            $error = $stmt->errorInfo();
+    
+            $uf = new UsuarioFactory();
+            return $uf->geraUsuario($resultado[0]);
+        }
+        catch(Exception $ex)
+        {
+            return $ex;
+        }
     }
 
     public function logar($u)
     {
-        $usuarioDb = $this->buscaUsuarioEmail($u["emailusuario"]);
-        $tokenService = new TokenService();
+        try {
+            $usuarioDb = $this->buscaUsuarioEmail($u["emailusuario"]);
+            $tokenService = new TokenService();
 
-        if(!is_null($usuarioDb->_emailusuario) && $usuarioDb->_senhausuario == $u["senhausuario"])
-        {
-            $token = JWT::encode(
-                        ["id" => $usuarioDb->_idusuario, "email" => $usuarioDb->_emailusuario, "nome" => $usuarioDb->_nomeusuario],
-                        $tokenService->getKey(),
-                        "HS256"
-            );
+            if(!is_null($usuarioDb->_emailusuario) && $usuarioDb->_senhausuario == $u["senhausuario"])
+            {
+                $token = JWT::encode(
+                            ["id" => $usuarioDb->_idusuario, "email" => $usuarioDb->_emailusuario, "nome" => $usuarioDb->_nomeusuario],
+                            $tokenService->getKey(),
+                            "HS256"
+                );
 
-            return $token;
+                return $token;
+            }
+            else
+            {//O login ou senha estão incorretos
+                return 0;
+            }
+        } catch (Exception $th) {//Houve um erro no servidor
+            return 1;
         }
-        else
-        {
-            return false;
-        }
+        
     }
 }

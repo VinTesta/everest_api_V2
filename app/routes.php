@@ -21,6 +21,6 @@ return function (App $app) {
     
     $app->post('/logar', LoginUsuario::class);
 
-    $app->get('/evento/buscaEventos', ListaEvento::class);
+    $app->post('/evento/buscaEventos', ListaEvento::class);
 };
 
