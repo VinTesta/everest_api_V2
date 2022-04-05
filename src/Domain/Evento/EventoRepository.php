@@ -49,11 +49,11 @@ class EventoRepository
                             
             return $error[1] == 0
                         ?
-                            array("status" => 200, "eventos" => $eventos)
+                            array("status" => 200, "eventos" => $eventos, "mensagem" => "Busca realizada com sucesso!")
                         :   
-                            array("status" => 500, "error" => $error[1]);
+                            array("status" => 500, "eventos" => [], "error" => $error[1], "mensagem" => "Houve um erro ao trazer as informações!");
         } catch (Exception $ex) {
-            return array("status" => 500, "error" => $ex);
+            return array("status" => 500, "error" => $ex, "eventos" => [], "mensagem" => "Houve um erro ao trazer as informações!");
         }
         
     }
