@@ -27,7 +27,7 @@ final class ListaEvento
 
             $result = $er->buscaEventoUsuario(1);
             $res->getBody()->write(
-                (string) json_encode(array("status" => apache_request_headers()["Authorization"][1]))
+                (string) json_encode(array("status" => apache_request_headers()["Authorization"][0]))
             );
 
             return $res
