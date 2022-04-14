@@ -21,11 +21,11 @@ final class ListaEvento
         try {
             $er = new EventoRepository(new ConexaoMySql());
 
-            $tokenService = new TokenService();
-            $headers = apache_request_headers();
-            $infoUsuario = JWT::decode(explode(" ", $headers['Authorization'])[1], $tokenService->getKey(), array_keys(JWT::$supported_algs));
+            // $tokenService = new TokenService();
+            // $headers = apache_request_headers();
+            // $infoUsuario = JWT::decode(explode(" ", $headers['Authorization'])[1], $tokenService->getKey(), array_keys(JWT::$supported_algs));
 
-            $result = $er->buscaEventoUsuario($infoUsuario->id);
+            $result = $er->buscaEventoUsuario(1);
             $res->getBody()->write(
                 (string) json_encode($result)
             );
