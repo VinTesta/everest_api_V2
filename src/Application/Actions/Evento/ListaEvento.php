@@ -19,15 +19,13 @@ final class ListaEvento
     public function __invoke(Request $req, Response $res, array $args): Response
     {
         try {
-            // $er = new EventoRepository(new ConexaoMySql());
+            $er = new EventoRepository(new ConexaoMySql());
 
-            // $tokenService = new TokenService();
-            // $headers = apache_request_headers();
-            // $infoUsuario = JWT::decode(explode(" ", $headers['Authorization'])[1], $tokenService->getKey(), array_keys(JWT::$supported_algs));
+            $tokenService = new TokenService();
+            $headers = apache_request_headers();
+            $infoUsuario = JWT::decode(explode(" ", $headers['Authorization'])[1], $tokenService->getKey(), array_keys(JWT::$supported_algs));
 
-            // $result = $er->buscaEventoUsuario($infoUsuario->id);
-            $result = array("teste" => "funfou");
-            
+            $result = $er->buscaEventoUsuario($infoUsuario->id);
             $res->getBody()->write(
                 (string) json_encode($result)
             );
