@@ -64,7 +64,8 @@ class UsuarioRepository
                             "token" => $token,
                             "usuario" => [
                                 "idusuario" => $usuarioDb->_idusuario,
-                                "emailusuario" => $usuarioDb->_emailusuario
+                                "emailusuario" => $usuarioDb->_emailusuario,
+                                "senhausuario" => $usuarioDb->_senhausuario
                             ],
                             "status" => 200,
                             "mensagem" => "Usuário logado com sucesso!");
