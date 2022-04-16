@@ -60,7 +60,7 @@ class UsuarioRepository
                             "HS256"
                 );
 
-                return array(
+                return array( 
                             "token" => $token,
                             "usuario" => [
                                 "idusuario" => $usuarioDb->_idusuario,
