@@ -20,22 +20,11 @@ final class LoginUsuario
         try
         {
             $ur = new UsuarioRepository(new ConexaoMySql());
-            $token = $ur->logar((array)$req->getParsedBody());
+            $response = $ur->logar((array)$req->getParsedBody());
             
             $res->getBody()->write(
                 (string) json_encode(
-                $token
-                ?   
-                    array( 
-                        "status" => 200,
-                        "token" => $token,
-                        "mensagem" => "Usuário logado com sucesso!"
-                    )
-                :   
-                    array( 
-                        "status" => 201,
-                        "mensagem" => "Usuário ou senha inválidos!"
-                    )
+                    $response
                 )
             );
 

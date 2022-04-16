@@ -23,7 +23,12 @@ final class ListaEvento
 
             $tokenService = new TokenService();
             $headers = apache_request_headers();
+
+            //PARA PROD USAR ESSE
             $infoUsuario = JWT::decode(explode(",", apache_request_headers()["Authorization"])[0], $tokenService->getKey(), array_keys(JWT::$supported_algs));
+
+            //PARA TESTE USAR ESSE
+            $infoUsuario = JWT::decode(explode(" ", apache_request_headers()["Authorization"])[1], $tokenService->getKey(), array_keys(JWT::$supported_algs));
 
             $result = $er->buscaEventoUsuario($infoUsuario->id);
             $res->getBody()->write(

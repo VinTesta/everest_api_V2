@@ -60,11 +60,21 @@ class UsuarioRepository
                             "HS256"
                 );
 
-                return $token;
+                return array(
+                            "token" => $token,
+                            "usuario" => [
+                                "idusuario" => $usuarioDb->_idusuario,
+                                "emailusuario" => $usuarioDb->_emailusuario
+                            ],
+                            "status" => 200,
+                            "mensagem" => "Usuário logado com sucesso!");
             }
             else
             {//O login ou senha estão incorretos
-                return 0;
+                return array(
+                    "usuario" => [],
+                    "status" => 201,
+                    "mensagem" => "Login ou senha incorretos");
             }
         } catch (Exception $th) {//Houve um erro no servidor
             return 1;
