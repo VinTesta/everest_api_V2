@@ -22,15 +22,10 @@ final class ListaEvento
             $er = new EventoRepository(new ConexaoMySql());
 
             $tokenService = new TokenService();
-            $headers = apache_request_headers();
 
-            //PARA PROD USAR ESSE
-            $infoUsuario = JWT::decode(explode(",", apache_request_headers()["Authorization"])[0], $tokenService->getKey(), array_keys(JWT::$supported_algs));
+            $infoToken = $tokenService->getTokenHeader();
 
-            //PARA TESTE USAR ESSE
-            $infoUsuario = JWT::decode(explode(" ", apache_request_headers()["Authorization"])[1], $tokenService->getKey(), array_keys(JWT::$supported_algs));
-
-            $result = $er->buscaEventoUsuario($infoUsuario->id);
+            $result = $er->buscaEventoUsuario($infoToken->id);
             $res->getBody()->write(
                 (string) json_encode($result)
             );

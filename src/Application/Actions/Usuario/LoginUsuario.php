@@ -19,7 +19,12 @@ final class LoginUsuario
     {
         try
         {
-            $ur = new UsuarioRepository(new ConexaoMySql());
+            $conexao = new ConexaoMySql();
+            $conn = $conexao->getConexao();
+            
+            $ur = new UsuarioRepository($conexao);
+            $conn->beginTransaction();
+
             $response = $ur->logar((array)$req->getParsedBody());
             
             $res->getBody()->write(
@@ -27,12 +32,15 @@ final class LoginUsuario
                     $response
                 )
             );
+                
+            $conn->commit();
 
             return $res
                     ->withHeader("Content-Type", "application/json");
         }
         catch (Exception $ex)
         {
+            $conn->rollBack();
             return $res->getBody()->write(
                         (string) json_encode(
                             array( 

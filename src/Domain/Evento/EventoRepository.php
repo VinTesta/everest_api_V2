@@ -15,7 +15,7 @@ class EventoRepository
 
     public function __construct(Conexao $conexao)
     {
-       $this->_conn = $conexao->getConexao();
+       $this->_conn = $conexao;
     }
 
     public function select()
@@ -31,9 +31,10 @@ class EventoRepository
         try {
             $query = $this->select();
 
-            $query = str_replace("evento e", "evento e, usuarioevento ue WHERE ue.evento_idevento = e.idevento AND ue.usuario_idusuario = :idusuario", $this->select());
-             
-            $stmt = $this->_conn->prepare($query);
+            $query = str_replace("evento e", "evento e, eventousuario eu WHERE eu.evento_idevento = e.idevento AND eu.usuario_idusuario = :idusuario AND e.status = 1", $this->select());
+            
+            $conexao = $this->_conn->getConexao();
+            $stmt = $conexao->prepare($query);
             $stmt->bindValue(":idusuario", $idusuario);
     
             $stmt->execute();
@@ -46,12 +47,11 @@ class EventoRepository
             }
             
             $error = $stmt->errorInfo();
-                            
             return $error[1] == 0
                         ?
                             array("status" => 200, "eventos" => $eventos, "mensagem" => "Busca realizada com sucesso!")
                         :   
-                            array("status" => 500, "eventos" => [], "error" => $error[1], "mensagem" => "Houve um erro ao trazer as informações!");
+                            array("status" => 500, "eventos" => [], "error" => $error, "mensagem" => "Houve um erro ao trazer as informações!");
         } catch (Exception $ex) {
             return array("status" => 500, "error" => $ex, "eventos" => [], "mensagem" => "Houve um erro ao trazer as informações!");
         }

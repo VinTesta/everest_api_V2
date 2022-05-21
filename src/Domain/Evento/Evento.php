@@ -8,6 +8,7 @@ class Evento
     public $tituloevento;
     public $descevento;
     public $dataevento;
+    public $status;
     #endregion
 
     public function __construct($params)
@@ -16,5 +17,6 @@ class Evento
         $this->tituloevento = isset($params["tituloevento"]) ? $params["tituloevento"] : null;
         $this->descevento = isset($params["descevento"]) ? $params["descevento"] : null;
         $this->dataevento = isset($params["dataevento"]) ? $params["dataevento"] : null;
+        $this->status = isset($params["status"]) ? $params["status"] : null;
     }
 }
