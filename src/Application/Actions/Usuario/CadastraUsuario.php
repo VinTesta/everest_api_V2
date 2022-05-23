@@ -12,6 +12,9 @@ use App\Domain\Config\ConexaoMySql;
 use App\Domain\Perfil\PerfilRepository;
 use App\Domain\Token\TokenService;
 use Firebase\JWT\JWT;
+use App\Domain\Historico\Historico;
+use App\Domain\Historico\HistoricoFactory;
+use App\Domain\Historico\HistoricoRepository;
 
 final class CadastraUsuario
 {
@@ -29,6 +32,8 @@ final class CadastraUsuario
             $tokenService = new TokenService();
             $ur = new UsuarioRepository($conexao);
             $pr = new PerfilRepository($conexao);
+            $hr = new HistoricoRepository($conexao);
+            $historicofactory = new HistoricoFactory();
             $requestData = (array)$req->getParsedBody();
             $requestHeader = $tokenService->getTokenHeader();
 
@@ -36,12 +41,15 @@ final class CadastraUsuario
             $response = $ur->cadastrarUsuario($requestData);
 
             $perfisInsert = $pr->buscaPerfil(array("nomeperfil" => "default"));
-
             // Adiciona o perfil do usuario
             $responsePerfilUsuario = $pr->atualizaPerfilUsuario($perfisInsert, $response["usuario"]);
-
             // Busca o perfil do usuario
             $newPerfilUsuario = $pr->buscaPerfilUsuario($response["usuario"]);
+            
+            $historicoUtilizacao = $historicofactory->geraHistorico(array("titulo" => 1, "descricao" => "O usuário criou uma conta no sistema", "tipo" => 1));
+            // Inserir histórico do usuario
+            $historicoUtilizacao = $hr->insert($historicoUtilizacao);
+            $historicoUsuario = $hr->insertHistoricoUsuario($historicoUtilizacao->idhistorico, $response["usuario"]->idusuario);
 
             $token = JWT::encode(
                         ["id" => $response["usuario"]->idusuario, 
@@ -50,7 +58,8 @@ final class CadastraUsuario
                         "perfil" => $tokenService->criptString(json_encode($newPerfilUsuario), "encrypt")],
                         $tokenService->getKey(),
                         "HS256"
-            );            
+            );     
+                   
             $res->getBody()->write(
                 (string) json_encode(
                     $response["usuario"]->idusuario != null 
@@ -72,6 +81,8 @@ final class CadastraUsuario
             );
 
             $conn->commit();
+            // $conn->rollBack();
+            
             return $res
                     ->withHeader("Content-Type", "application/json");
         }

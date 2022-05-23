@@ -1,7 +1,6 @@
 <?php
 namespace App\Domain\Token;
 
-use App\Domain\Token\TokenService;
 use Firebase\JWT\JWT;
 
 class TokenService
@@ -49,5 +48,14 @@ class TokenService
             }
         }
         return $output;
+    }
+
+    public function geraTokenAcesso($body)
+    {
+        return JWT::encode(
+            $body,
+            $this->getKey(),
+            "HS256"
+        );
     }
 }

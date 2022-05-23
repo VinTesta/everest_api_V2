@@ -71,34 +71,24 @@ class UsuarioRepository
         try {
             $usuarioDb = $this->buscaUsuarioEmail($u["emailusuario"]);
             $tokenService = new TokenService();
+            $usuarioFactory = new UsuarioFactory();
 
             if(!is_null($usuarioDb->emailusuario) && password_verify($u["senhausuario"], $usuarioDb->senhausuario))
             {
                 $p = new PerfilRepository($this->_conn);
                 $perfilUsuario = $p->buscaPerfilUsuario($usuarioDb);
-                if(!empty($perfilUsuario))
-                {
-                    $token = JWT::encode(
-                                ["id" => $usuarioDb->idusuario, 
-                                "email" => $usuarioDb->emailusuario, 
-                                "nome" => $usuarioDb->nomeusuario, 
-                                "perfil" => $tokenService->criptString(json_encode($perfilUsuario), "encrypt")],
-                                $tokenService->getKey(),
-                                "HS256"
-                    );
-                }
-                else
+                if(empty($perfilUsuario))
                 {
                     throw new Exception("O usuario se encontra sem perfil ou não tem acesso ao sistema!");
                 }
 
                 return array( 
-                            "token" => $token,
-                            "usuario" => [
+                            "usuario" => $usuarioFactory->geraUsuario([
                                 "idusuario" => $usuarioDb->idusuario,
                                 "emailusuario" => $usuarioDb->emailusuario,
-                                "perfil" => $tokenService->criptString(json_encode($perfilUsuario), "encrypt")
-                            ],
+                                "nomeusuario" => $usuarioDb->nomeusuario
+                            ]),
+                            "perfil" => $tokenService->criptString(json_encode($perfilUsuario), "encrypt"),
                             "status" => 200,
                             "mensagem" => "Usuário logado com sucesso!");
             }

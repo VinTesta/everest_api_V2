@@ -9,6 +9,10 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Domain\Usuario\UsuarioRepository;
 use App\Domain\Usuario\Usuario;
 use App\Domain\Config\ConexaoMySql;
+use App\Domain\Token\TokenService;
+use App\Domain\Historico\Historico;
+use App\Domain\Historico\HistoricoFactory;
+use App\Domain\Historico\HistoricoRepository;
 
 final class LoginUsuario
 {
@@ -21,20 +25,41 @@ final class LoginUsuario
         {
             $conexao = new ConexaoMySql();
             $conn = $conexao->getConexao();
-            
-            $ur = new UsuarioRepository($conexao);
             $conn->beginTransaction();
+            
+            $hr = new HistoricoRepository($conexao);
+            $historicoFactory = new HistoricoFactory($conexao);
+            $ur = new UsuarioRepository($conexao);
+            $tokenService = new TokenService();
 
             $response = $ur->logar((array)$req->getParsedBody());
-            
+
+            $token = $tokenService->geraTokenAcesso(["id" => $response["usuario"]->idusuario, 
+                                                    "email" => $response["usuario"]->emailusuario, 
+                                                    "nome" => $response["usuario"]->nomeusuario, 
+                                                    "perfil" => $response["perfil"]]);
+
+            $historicoUtilizacao = $historicoFactory->geraHistorico(array("titulo" => 3, "descricao" => "O usuário se logou pelo sistema", "tipo" => 1));      
+            // Inserir histórico do usuario
+            $historicoUtilizacao = $hr->insert($historicoUtilizacao);
+            $historicoUsuario = $hr->insertHistoricoUsuario($historicoUtilizacao->idhistorico, $response["usuario"]->idusuario);                                              
+                        
             $res->getBody()->write(
                 (string) json_encode(
-                    $response
+                    array( 
+                            "token" => $token,
+                            "usuario" => [
+                                "idusuario" => $response["usuario"]->idusuario,
+                                "emailusuario" => $response["usuario"]->emailusuario,
+                                "perfil" => $response["perfil"]
+                            ],
+                            "status" => 200,
+                            "mensagem" => "Usuário logado com sucesso!")
                 )
             );
                 
             $conn->commit();
-
+            // $conn->rollBack();
             return $res
                     ->withHeader("Content-Type", "application/json");
         }
