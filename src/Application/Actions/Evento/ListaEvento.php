@@ -10,6 +10,7 @@ use App\Domain\Config\ConexaoMySql;
 use App\Domain\Evento\EventoRepository;
 use App\Domain\Token\TokenService;
 use Firebase\JWT\JWT;
+use App\Domain\Usuario\UsuarioFactory;
 
 final class ListaEvento
 {
@@ -19,20 +20,30 @@ final class ListaEvento
     public function __invoke(Request $req, Response $res, array $args): Response
     {
         try {
-            $er = new EventoRepository(new ConexaoMySql());
+            $conexao = new ConexaoMySql();
+            $conn = $conexao->getConexao();
+
+            $er = new EventoRepository($conexao);
+            $usuarioFactory = new UsuarioFactory();
+            $conn->beginTransaction();
 
             $tokenService = new TokenService();
 
-            $infoToken = $tokenService->getTokenHeader();
-
-            $result = $er->buscaEventoUsuario($infoToken->id);
+            $infoToken = $tokenService->getTokenBody();
+            $result = $er->buscaEventoUsuario($tokenService->criptString(json_encode($infoToken->id), "decrypt"));
+            
             $res->getBody()->write(
-                (string) json_encode($result)
+                (string) json_encode(
+                    array("status" => 200, "eventos" => $result, "mensagem" => "Busca realizada com sucesso!")                    
+                )
             );
 
+            $conn->commit();
             return $res
                     ->withHeader("Content-Type", "application/json; charset=utf-8");
         } catch (Exception $ex) {
+            
+            $conn->rollBack();
             return $res->getBody()->write(
                 (string) json_encode(
                     array( 

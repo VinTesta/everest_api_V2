@@ -115,4 +115,33 @@ class PerfilRepository
 
         return $perfis;
     }
+
+    public function validaPermissaoUsuario($idusuario, $permissao)
+    {
+        $busca_permissao = "('". implode("', '", $permissao)."')";
+        $query = str_replace("perfil", 
+                "perfil p 
+                INNER JOIN perfilusuario AS pu
+                ON p.idperfil = pu.perfil_idperfil
+                INNER JOIN permissaoperfil AS pp
+                ON p.idperfil = pp.perfil_idperfil
+                INNER JOIN permissao AS pe
+                ON pe.idpermissao = pp.permissao_idpermissao
+            WHERE 
+                pu.usuario_idusuario = $idusuario
+                AND pe.codPermissao IN $busca_permissao
+                AND p.status = 1",
+            $this->select());
+
+        $conexao = $this->_conn->getConexao();
+        $stmt = $conexao->prepare($query);
+        $stmt->execute();
+
+        if($stmt->rowCount() > 0)
+        {
+            return true;
+        }
+
+        return false;
+    }
 }

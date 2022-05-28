@@ -41,6 +41,15 @@ class HistoricoFactory
             case 4: 
                 $msg_historico =  "Logout do sistema";
                 break;
+            case 5:
+                $msg_historico = "Alteração de dados do usuário";
+                break;
+            case 6:
+                $msg_historico = "Cadastro de evento";
+                break;
+            case 7:
+                $msg_historico = "Alteração de evento";
+                break;
             case null:
                 break;
             default:

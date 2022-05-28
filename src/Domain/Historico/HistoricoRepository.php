@@ -43,8 +43,6 @@ class HistoricoRepository
 
     public function insertHistoricoUsuario($id_historico, $id_usuario)
     {
-        var_dump($id_historico);
-        var_dump($id_usuario);
         $query = "INSERT INTO historicousuario (usuario_idusuario, historico_idhistorico) VALUES (:idusuario, :idhistorico)";
 
         $conexao = $this->_conn->getConexao();
@@ -64,8 +62,8 @@ class HistoricoRepository
 
         $conexao = $this->_conn->getConexao();
         $stmt = $conexao->prepare($query);
-        $stmt->bindValue(":idevento", $id_usuario);
-        $stmt->bindValeu(":idhistorico", $id_historico);
+        $stmt->bindValue(":idevento", $id_evento);
+        $stmt->bindValue(":idhistorico", $id_historico);
 
         $stmt->execute();
         $id_historico_evento = $conexao->lastInsertId();

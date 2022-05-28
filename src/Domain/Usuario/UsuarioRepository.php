@@ -88,7 +88,7 @@ class UsuarioRepository
                                 "emailusuario" => $usuarioDb->emailusuario,
                                 "nomeusuario" => $usuarioDb->nomeusuario
                             ]),
-                            "perfil" => $tokenService->criptString(json_encode($perfilUsuario), "encrypt"),
+                            "perfil" => $perfilUsuario,
                             "status" => 200,
                             "mensagem" => "Usuário logado com sucesso!");
             }
@@ -145,5 +145,24 @@ class UsuarioRepository
                 "mensagem" => $ex->getMessage()
             );
         }
+    }
+
+    public function update(Usuario $u, $idusuario)
+    {
+        $query = "UPDATE usuario SET 
+                                nomeusuario = :nomeusuario, 
+                                emailusuario = :emailusuario
+                            WHERE 
+                                idusuario = :idusuario
+                            LIMIT 1";
+
+        $conexao = $this->_conn->getConexao();
+        $stmt = $conexao->prepare($query);
+        $stmt->bindValue(":nomeusuario", $u->nomeusuario);
+        $stmt->bindValue(":emailusuario", $u->emailusuario);
+        $stmt->bindValue(":idusuario", $idusuario);
+
+        $stmt->execute();
+        return $stmt->rowCount();
     }
 }

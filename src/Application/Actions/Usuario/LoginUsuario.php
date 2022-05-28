@@ -32,26 +32,33 @@ final class LoginUsuario
             $ur = new UsuarioRepository($conexao);
             $tokenService = new TokenService();
 
-            $response = $ur->logar((array)$req->getParsedBody());
+            $body = (array)$req->getParsedBody();
+            $response = $ur->logar($body);
 
-            $token = $tokenService->geraTokenAcesso(["id" => $response["usuario"]->idusuario, 
-                                                    "email" => $response["usuario"]->emailusuario, 
-                                                    "nome" => $response["usuario"]->nomeusuario, 
-                                                    "perfil" => $response["perfil"]]);
+            if($response["usuario"]->emailusuario != null)
+            {
+                $token = $tokenService->geraTokenAcesso(["id" => $tokenService->criptString(json_encode($response["usuario"]->idusuario), "encrypt"), 
+                                                        "email" => $response["usuario"]->emailusuario, 
+                                                        "nome" => $response["usuario"]->nomeusuario]);
 
-            $historicoUtilizacao = $historicoFactory->geraHistorico(array("titulo" => 3, "descricao" => "O usuário se logou pelo sistema", "tipo" => 1));      
-            // Inserir histórico do usuario
-            $historicoUtilizacao = $hr->insert($historicoUtilizacao);
-            $historicoUsuario = $hr->insertHistoricoUsuario($historicoUtilizacao->idhistorico, $response["usuario"]->idusuario);                                              
-                        
+                $historicoUtilizacao = $historicoFactory->geraHistorico(array("titulo" => 3, "descricao" => "O usuário se logou pelo sistema", "tipo" => 1));      
+                // Inserir histórico do usuario
+                $historicoUtilizacao = $hr->insert($historicoUtilizacao);
+                $historicoUsuario = $hr->insertHistoricoUsuario($historicoUtilizacao->idhistorico, $response["usuario"]->idusuario);                                              
+            }       
+            else
+            {
+                throw new Exception("Dados inválidos!", 1);
+                
+            }
+
             $res->getBody()->write(
                 (string) json_encode(
                     array( 
                             "token" => $token,
                             "usuario" => [
                                 "idusuario" => $response["usuario"]->idusuario,
-                                "emailusuario" => $response["usuario"]->emailusuario,
-                                "perfil" => $response["perfil"]
+                                "emailusuario" => $response["usuario"]->emailusuario
                             ],
                             "status" => 200,
                             "mensagem" => "Usuário logado com sucesso!")

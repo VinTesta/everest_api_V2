@@ -15,6 +15,7 @@ use Firebase\JWT\JWT;
 use App\Domain\Historico\Historico;
 use App\Domain\Historico\HistoricoFactory;
 use App\Domain\Historico\HistoricoRepository;
+use Exception;
 
 final class CadastraUsuario
 {
@@ -35,30 +36,36 @@ final class CadastraUsuario
             $hr = new HistoricoRepository($conexao);
             $historicofactory = new HistoricoFactory();
             $requestData = (array)$req->getParsedBody();
-            $requestHeader = $tokenService->getTokenHeader();
+            $requestHeader = $tokenService->getTokenBody();
 
             // Adiciona o usuario
             $response = $ur->cadastrarUsuario($requestData);
 
-            $perfisInsert = $pr->buscaPerfil(array("nomeperfil" => "default"));
-            // Adiciona o perfil do usuario
-            $responsePerfilUsuario = $pr->atualizaPerfilUsuario($perfisInsert, $response["usuario"]);
-            // Busca o perfil do usuario
-            $newPerfilUsuario = $pr->buscaPerfilUsuario($response["usuario"]);
-            
-            $historicoUtilizacao = $historicofactory->geraHistorico(array("titulo" => 1, "descricao" => "O usuário criou uma conta no sistema", "tipo" => 1));
-            // Inserir histórico do usuario
-            $historicoUtilizacao = $hr->insert($historicoUtilizacao);
-            $historicoUsuario = $hr->insertHistoricoUsuario($historicoUtilizacao->idhistorico, $response["usuario"]->idusuario);
-
-            $token = JWT::encode(
-                        ["id" => $response["usuario"]->idusuario, 
-                        "email" => $response["usuario"]->emailusuario, 
-                        "nome" => $response["usuario"]->nomeusuario, 
-                        "perfil" => $tokenService->criptString(json_encode($newPerfilUsuario), "encrypt")],
-                        $tokenService->getKey(),
-                        "HS256"
-            );     
+            if($response["usuario"]->idusuario != null)
+            {
+                $perfisInsert = $pr->buscaPerfil(array("nomeperfil" => "default"));
+                // Adiciona o perfil do usuario
+                $responsePerfilUsuario = $pr->atualizaPerfilUsuario($perfisInsert, $response["usuario"]);
+                // Busca o perfil do usuario
+                $newPerfilUsuario = $pr->buscaPerfilUsuario($response["usuario"]);
+                
+                $historicoUtilizacao = $historicofactory->geraHistorico(array("titulo" => 1, "descricao" => "O usuário criou uma conta no sistema", "tipo" => 1));
+                // Inserir histórico do usuario
+                $historicoUtilizacao = $hr->insert($historicoUtilizacao);
+                $historicoUsuario = $hr->insertHistoricoUsuario($historicoUtilizacao->idhistorico, $response["usuario"]->idusuario);
+                $token = JWT::encode(
+                            ["id" => $response["usuario"]->idusuario, 
+                            "email" => $response["usuario"]->emailusuario, 
+                            "nome" => $response["usuario"]->nomeusuario, 
+                            "perfil" => $tokenService->criptString(json_encode($newPerfilUsuario), "encrypt")],
+                            $tokenService->getKey(),
+                            "HS256"
+                );     
+            }
+            else
+            {
+                throw new Exception("Dados ínvalidos!");
+            }
                    
             $res->getBody()->write(
                 (string) json_encode(
@@ -90,16 +97,16 @@ final class CadastraUsuario
         {
             $conn->rollBack();
 
-            return $res->getBody()->write(
+            $res->getBody()->write(
                         (string) json_encode(
                             array( 
                                 "status" => 500,
                                 "mensagem" => "Houve um erro ao cadastrar o usuario!",
-                                "erro" => (string) $ex
+                                "erro" => (string) $ex->getMessage()
                             )
                         )
-                    )
-                    ->withHeader("Content-Type", "application/json");
+                    );
+            return $res->withHeader("Content-Type", "application/json");
         }
     }
 }

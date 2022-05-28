@@ -14,9 +14,10 @@ class TokenService
         return $this->_key;
     }
 
-    public function getTokenHeader()
+    public function getTokenBody()
     {
         $headers = apache_request_headers();
+        if(!isset(apache_request_headers()["Authorization"])) return "No Authenticate";
         
         if(!empty(explode(",", apache_request_headers()["Authorization"])[0]) != "Bearer")
         {
@@ -47,7 +48,8 @@ class TokenService
                 $output = openssl_decrypt(base64_decode($string), $this->_encrypt_method, $key, 0, $iv);
             }
         }
-        return $output;
+
+        return str_replace('"', "", $output);
     }
 
     public function geraTokenAcesso($body)
