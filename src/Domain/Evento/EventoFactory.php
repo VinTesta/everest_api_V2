@@ -13,13 +13,17 @@ class EventoFactory
         $idevento = isset($params["idevento"]) ? $params["idevento"] : null;
         $tituloevento = isset($params["tituloevento"]) ? $params["tituloevento"] : null;
         $descevento = isset($params["descevento"]) ? $params["descevento"] : null;
-        $dataevento = isset($params["dataevento"]) ? $params["dataevento"] : null;
+        $dataInicioEvento = isset($params["dataInicioEvento"]) ? $params["dataInicioEvento"] : null;
+        $dataFimEvento = isset($params["dataFimEvento"]) ? $params["dataFimEvento"] : null;
+        $lembrete = isset($params["lembrete"]) ? $params["lembrete"] : null;
         $status = isset($params["status"]) ? $params["status"] : null;
 
         return new Evento(["idevento" => $idevento,
                             "tituloevento" => $tituloevento,
                             "descevento" => $descevento,
-                            "dataevento" => $dataevento,
+                            "dataInicioEvento" => $dataInicioEvento,
+                            "dataFimEvento" => $dataFimEvento,
+                            "lembrete" => $lembrete,
                             "status" => $status
                             ]);
     }

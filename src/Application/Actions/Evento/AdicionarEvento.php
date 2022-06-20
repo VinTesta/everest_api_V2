@@ -44,12 +44,12 @@ final class AdicionarEvento
             $evento = $eventoFactory->geraEvento($bodyReq);
             $evento = $eventoRepository->insert($evento);
 
-            if($evento->idevento != null)
+            if($evento->idevento && $evento->idevento != 0)
             {
                 $relative_id = $eventoRepository->insertUsuarioEvento($evento->idevento, $idusuario);
                 if($relative_id != null)
                 {
-                    $historicoUtilizacao = $historicoFactory->geraHistorico(array("titulo" => 6, "descricao" => "Responsável -> $infoToken->nome", "tipo" => 1));
+                    $historicoUtilizacao = $historicoFactory->geraHistorico(array("titulo" => 6, "descricao" => "", "tipo" => 1));
                     // Inserir histórico do usuario
                     $historicoUtilizacao = $historicoRepository->insert($historicoUtilizacao);
                     $historicoUsuario = $historicoRepository->insertHistoricoUsuario($historicoUtilizacao->idhistorico, $idusuario);
@@ -57,12 +57,12 @@ final class AdicionarEvento
                 }
                 else
                 {
-                    throw new Exception("Dados incorretos!");
+                    throw new Exception("Houve um erro ao adicionar o usuário ao evento!");
                 }
             }
             else
             {
-                throw new Exception("Dados incorretos!");
+                throw new Exception("Houve um erro ao adicionar os dados do evento!");
             }
 
             $res->getBody()->write(
@@ -86,7 +86,7 @@ final class AdicionarEvento
                     array( 
                         "status" => 500,
                         "mensagem" => "Houve um erro ao adicionar os eventos!",
-                        "erro" => (string) $ex
+                        "erro" => (string) $ex->getMessage()
                     )
                 )
             );

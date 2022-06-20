@@ -7,6 +7,7 @@ use PDO;
 use Firebase\JWT\JWT;
 use App\Domain\Usuario\UsuarioFactory;
 use App\Domain\Token\TokenService;
+use App\Domain\Evento\EventoFactory;
 
 class EventoRepository
 {
@@ -29,6 +30,7 @@ class EventoRepository
 
     public function buscaEventoUsuario($idusuario)
     {
+        $eventoFactory = new EventoFactory;
         $query = $this->select();
 
         $query = str_replace("evento e", "evento e, eventousuario eu WHERE eu.evento_idevento = e.idevento AND eu.usuario_idusuario = :idusuario AND e.status = 1", $this->select());
@@ -43,27 +45,44 @@ class EventoRepository
         $eventos = [];
         foreach($resultado as $res)
         {
-            $eventos[] = new Evento($res);
+            $eventos[] = $eventoFactory->geraEvento($res);
         }
 
-        return $eventos;
-        
+        return $eventos; 
     }
 
     public function insert(Evento $e)
     {
-        $query = "INSERT INTO evento (tituloevento, descevento, dataevento) VALUES (:tituloevento, :descevento, :dataevento)";
+        $query = "INSERT INTO 
+                            evento 
+                            (
+                                tituloevento, 
+                                descevento, 
+                                dataInicioEvento, 
+                                dataFimEvento, 
+                                lembrete
+                            ) 
+                        VALUES 
+                            (
+                                :tituloevento, 
+                                :descevento, 
+                                :dataInicioEvento,
+                                :dataFimEvento,
+                                :lembrete
+                            )";
 
         $conexao = $this->_conn->getConexao();
         $stmt = $conexao->prepare($query);
         $stmt->bindValue(":tituloevento", $e->tituloevento);
         $stmt->bindValue(":descevento", $e->descevento);
-        $stmt->bindValue(":dataevento", $e->dataevento);
+        $stmt->bindValue(":dataInicioEvento", $e->dataInicioEvento);
+        $stmt->bindValue(":dataFimEvento", $e->dataFimEvento);
+        $stmt->bindValue(":lembrete", $e->lembrete);
 
         $stmt->execute();
 
         $e->idevento = $conexao->lastInsertId();
-
+        
         return $e;
     }
 
@@ -90,7 +109,9 @@ class EventoRepository
                     SET 
                         tituloevento = :tituloevento, 
                         descevento = :descevento, 
-                        dataevento = :dataevento
+                        dataInicioEvento = :dataInicioEvento,
+                        dataFimEvento = :dataFimEvento,
+                        lembrete = :lembrete
                     WHERE 
                         idevento = :idevento";
 
@@ -98,7 +119,9 @@ class EventoRepository
         $stmt = $conexao->prepare($query);
         $stmt->bindValue(":tituloevento", $e->tituloevento);
         $stmt->bindValue(":descevento", $e->descevento);
-        $stmt->bindValue(":dataevento", $e->dataevento);
+        $stmt->bindValue(":dataInicioEvento", $e->dataInicioEvento);
+        $stmt->bindValue(":dataFimEvento", $e->dataFimEvento);
+        $stmt->bindValue(":lembrete", $e->lembrete);
         $stmt->bindValue(":idevento", $e->idevento);
 
         $stmt->execute();

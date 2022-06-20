@@ -42,14 +42,15 @@ final class AlterarUsuario
             $tokenBody = $tokenService->getTokenBody();
             $idusuario = $tokenService->criptString($tokenBody->id, "decrypt");
 
-            $usuario_alteracao = $usuarioFactory->geraUsuario($bodyReq["altUsuario"]);
+            $usuario_alteracao = $usuarioFactory->geraUsuario($bodyReq);
+            $usuario_alteracao->idusuario = isset($usuario_alteracao->idusuario) ? $usuario_alteracao->idusuario : $idusuario;
 
             if(isset($usuario_alteracao->idusuario) && ($perfilRepository->validaPermissaoUsuario($idusuario, ["altUsuario"]) || $usuario_alteracao->idusuario == $idusuario))
             {
                 // PERMITE ALTERAR OUTROS USUÁRIOS
                 $alterado = $usuarioRepository->update($usuario_alteracao, $usuario_alteracao->idusuario);
                 
-                $historicoUtilizacao = $historicoFactory->geraHistorico(array("titulo" => 5, "descricao" => "Responsável -> $tokenBody->nome", "tipo" => 1));
+                $historicoUtilizacao = $historicoFactory->geraHistorico(array("titulo" => 5, "descricao" => "Responsável -> $tokenBody->nomeusuario", "tipo" => 1));
                 // Inserir histórico do usuario
                 $historicoUtilizacao = $historicoRepository->insert($historicoUtilizacao);
                 $historicoUsuario = $historicoRepository->insertHistoricoUsuario($historicoUtilizacao->idhistorico, $idusuario);

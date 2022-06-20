@@ -35,9 +35,9 @@ final class CadastraUsuario
             $pr = new PerfilRepository($conexao);
             $hr = new HistoricoRepository($conexao);
             $historicofactory = new HistoricoFactory();
-            $requestData = (array)$req->getParsedBody();
-            $requestHeader = $tokenService->getTokenBody();
 
+            $requestData = (array)$req->getParsedBody();
+            
             // Adiciona o usuario
             $response = $ur->cadastrarUsuario($requestData);
 
@@ -53,11 +53,11 @@ final class CadastraUsuario
                 // Inserir histórico do usuario
                 $historicoUtilizacao = $hr->insert($historicoUtilizacao);
                 $historicoUsuario = $hr->insertHistoricoUsuario($historicoUtilizacao->idhistorico, $response["usuario"]->idusuario);
+
                 $token = JWT::encode(
                             ["id" => $response["usuario"]->idusuario, 
-                            "email" => $response["usuario"]->emailusuario, 
-                            "nome" => $response["usuario"]->nomeusuario, 
-                            "perfil" => $tokenService->criptString(json_encode($newPerfilUsuario), "encrypt")],
+                            "emailusuario" => $response["usuario"]->emailusuario, 
+                            "nomeusuario" => $response["usuario"]->nomeusuario],
                             $tokenService->getKey(),
                             "HS256"
                 );     
@@ -74,7 +74,9 @@ final class CadastraUsuario
                         array( 
                             "token" => $token,
                             "usuario" => [
-                                "emailusuario" => $response["usuario"]->emailusuario
+                                "idusuario" => $response["usuario"]->idusuario,
+                                "emailusuario" => $response["usuario"]->emailusuario,
+                                "nomeusuario" => $response["usuario"]->nomeusuario
                             ],
                             "status" => 200,
                             "mensagem" => "Usuario cadastrado com sucesso!")

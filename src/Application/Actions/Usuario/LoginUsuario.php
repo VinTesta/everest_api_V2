@@ -13,6 +13,7 @@ use App\Domain\Token\TokenService;
 use App\Domain\Historico\Historico;
 use App\Domain\Historico\HistoricoFactory;
 use App\Domain\Historico\HistoricoRepository;
+use Exception;
 
 final class LoginUsuario
 {
@@ -34,12 +35,12 @@ final class LoginUsuario
 
             $body = (array)$req->getParsedBody();
             $response = $ur->logar($body);
-
+            
             if($response["usuario"]->emailusuario != null)
             {
                 $token = $tokenService->geraTokenAcesso(["id" => $tokenService->criptString(json_encode($response["usuario"]->idusuario), "encrypt"), 
-                                                        "email" => $response["usuario"]->emailusuario, 
-                                                        "nome" => $response["usuario"]->nomeusuario]);
+                                                        "emailusuario" => $response["usuario"]->emailusuario, 
+                                                        "nomeusuario" => $response["usuario"]->nomeusuario]);
 
                 $historicoUtilizacao = $historicoFactory->geraHistorico(array("titulo" => 3, "descricao" => "O usuário se logou pelo sistema", "tipo" => 1));      
                 // Inserir histórico do usuario
@@ -48,8 +49,7 @@ final class LoginUsuario
             }       
             else
             {
-                throw new Exception("Dados inválidos!", 1);
-                
+                throw new Exception("Login ou senha incorretos!", 1);
             }
 
             $res->getBody()->write(
@@ -58,7 +58,8 @@ final class LoginUsuario
                             "token" => $token,
                             "usuario" => [
                                 "idusuario" => $response["usuario"]->idusuario,
-                                "emailusuario" => $response["usuario"]->emailusuario
+                                "emailusuario" => $response["usuario"]->emailusuario,
+                                "nomeusuario" => $response["usuario"]->nomeusuario
                             ],
                             "status" => 200,
                             "mensagem" => "Usuário logado com sucesso!")
@@ -73,7 +74,7 @@ final class LoginUsuario
         catch (Exception $ex)
         {
             $conn->rollBack();
-            return $res->getBody()->write(
+            $res->getBody()->write(
                         (string) json_encode(
                             array( 
                                 "status" => 500,
@@ -81,8 +82,8 @@ final class LoginUsuario
                                 "erro" => (string) $ex
                             )
                         )
-                    )
-                    ->withHeader("Content-Type", "application/json");
+                    );
+            return $res->withHeader("Content-Type", "application/json");
         }
     }
 }

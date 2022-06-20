@@ -19,17 +19,12 @@ class TokenService
         $headers = apache_request_headers();
         if(!isset(apache_request_headers()["Authorization"])) return "No Authenticate";
         
-        if(!empty(explode(",", apache_request_headers()["Authorization"])[0]) != "Bearer")
-        {
-            //PARA PROD USAR ESSE
-            $infoUsuario = JWT::decode(explode(",", apache_request_headers()["Authorization"])[0], $this->_key, array_keys(JWT::$supported_algs));
-        }
-        else
-        {
-            //PARA TESTE USAR ESSE
-            $infoUsuario = JWT::decode(explode(" ", $headers["Authorization"])[1], $this->_key, array_keys(JWT::$supported_algs));
-        }
-
+        //PARA PROD USAR ESSE
+        $infoUsuario = JWT::decode(explode(",", apache_request_headers()["Authorization"])[0], $this->_key, array_keys(JWT::$supported_algs));
+        
+        //PARA TESTE USAR ESSE
+        // $infoUsuario = JWT::decode(explode(" ", $headers["Authorization"])[1], $this->_key, array_keys(JWT::$supported_algs));
+        
         return $infoUsuario;
     }
 
