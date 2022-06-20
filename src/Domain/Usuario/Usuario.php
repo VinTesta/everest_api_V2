@@ -4,21 +4,19 @@ namespace App\Domain\Usuario;
 class Usuario
 {
     #region Parâmetros Privados
-    public $_idusuario;
-    public $_nomeusuario;
-    public $_emailusuario;
-    public $_senhausuario;
-    public $_perfilusuario;
-    public $_statususuario;
+    public $idusuario;
+    public $nomeusuario;
+    public $emailusuario;
+    public $senhausuario;
+    public $status;
     #endregion
 
     public function __construct($params)
     {
-        $this->_idusuario = isset($params["idusuario"]) ? $params["idusuario"] : null;
-        $this->_nomeusuario = isset($params["nomeusuario"]) ? $params["nomeusuario"] : null;
-        $this->_emailusuario = isset($params["emailusuario"]) ? $params["emailusuario"] : null;
-        $this->_senhausuario = isset($params["senhausuario"]) ? $params["senhausuario"] : null;
-        $this->_perfilusuario = isset($params["perfilusuario"]) ? $params["perfilusuario"] : null;
-        $this->_statususuario = isset($params["statususuario"]) ? $params["statususuario"] : null;
+        $this->idusuario = isset($params["idusuario"]) ? $params["idusuario"] : null;
+        $this->nomeusuario = isset($params["nomeusuario"]) ? $params["nomeusuario"] : null;
+        $this->emailusuario = isset($params["emailusuario"]) ? $params["emailusuario"] : null;
+        $this->senhausuario = isset($params["senhausuario"]) ? $params["senhausuario"] : null;
+        $this->status = isset($params["status"]) ? $params["status"] : null;
     }
 }
