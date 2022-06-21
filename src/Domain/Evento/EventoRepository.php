@@ -156,4 +156,26 @@ class EventoRepository
 
         return $usuarios;
     }
+
+    public function insertEnderecoEvento(Evento $evento, $latitude, $longitude)
+    {
+        $query = "INSERT INTO eventoendereco (latitude, longitude, evento_idevento) VALUES (:latitude, :longitude, :idevento)";
+
+        $conexao = $this->_conn->getConexao();
+        $stmt = $conexao->prepare($query);
+        $stmt->bindValue(":latitude", $latitude);
+        $stmt->bindValue(":longitude", $longitude);
+        $stmt->bindValue(":idevento", $evento->idevento);
+
+        $stmt->execute();
+        
+        $id_endereco = $conexao->lastInsertId();
+
+        if($conexao->errorInfo()[1] > 0)
+        {
+            throw new Exception($conexao->errorInfo()[2]);
+        }
+
+        return $id_endereco;
+    }
 }

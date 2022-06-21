@@ -39,13 +39,19 @@ final class AdicionarEvento
             $infoToken = $tokenService->getTokenBody();
             $idusuario = $tokenService->criptString($infoToken->id, "decrypt");
             
-            $bodyReq = (array)$req->getParsedBody();
+            $bodyReq = $req->getParsedBody();
 
-            $evento = $eventoFactory->geraEvento($bodyReq);
+            $evento = $eventoFactory->geraEvento($bodyReq["evento"]);
             $evento = $eventoRepository->insert($evento);
 
             if($evento->idevento && $evento->idevento != 0)
             {
+                $endereco = $bodyReq["endereco"];
+                if($endereco["status"] == "1")
+                {
+                    $endereco_id = $eventoRepository->insertEnderecoEvento($evento, $endereco["latitude"], $endereco["longitude"]);
+                }
+
                 $relative_id = $eventoRepository->insertUsuarioEvento($evento->idevento, $idusuario);
                 if($relative_id != null)
                 {
@@ -70,7 +76,7 @@ final class AdicionarEvento
                     array(
                         "status" => 200,
                         "evento" => $evento,
-                        "mensagem" => "Evento cadastrado com sucesso!"
+                        "mensagem" => "Evento adiciona com sucesso!"
                         )                    
                 )
             );
